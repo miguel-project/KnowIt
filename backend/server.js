@@ -17,7 +17,21 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use((req, res, next) => {
+  console.log(`${new Date().toLocaleTimeString()} - ${req.method} ${req.path}`);
+  next();
+});
+
+// Prima di app.use('/api/auth', ...)
+const authRoutes = require('./routes/auth');
+console.log('authRoutes:', typeof authRoutes);  // Deve dire "function"
+
+app.use('/api/auth', authRoutes);
+
+
 // ✅ ROUTES (NECESSARIE!)
+app.use('/api/auth', require('./routes/auth'));
+
 app.get('/', (req, res) => {
   res.json({ message: 'Backend funzionante!' });
 });

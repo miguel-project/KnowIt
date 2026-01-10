@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { createQuiz, addQuestion } from '../services/api';
-import '/CreateQuizPage.css';
+import './CreateQuizPage.css';
 
 function CreateQuizPage() {
   const navigate = useNavigate();
@@ -31,7 +31,6 @@ function CreateQuizPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [createdQuizId, setCreatedQuizId] = useState(null);
 
   // Handler Step 1: Info Quiz
   const handleQuizDataChange = (e) => {
@@ -114,7 +113,6 @@ function CreateQuizPage() {
       // 1. Crea il quiz
       const quizResponse = await createQuiz(quizData);
       const quizId = quizResponse.quiz._id;
-      setCreatedQuizId(quizId);
 
       // 2. Aggiungi tutte le domande
       for (const question of questions) {

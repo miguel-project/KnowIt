@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAllQuizzes } from '../services/api';
+import './QuizListPage.css';
 
 function QuizListPage() {
   const navigate = useNavigate();
@@ -40,7 +41,15 @@ function QuizListPage() {
     loadQuizzes(newFilters);
   };
 
-
+const getDifficultyColor = (difficulty) => {
+    switch(difficulty) {
+      case 'facile': return '#4CAF50';
+      case 'medio': return '#FF9800';
+      case 'difficile': return '#F44336';
+      default: return '#999';
+    }
+  };
+  
   return (
     <div className="quiz-list-container">
       <div className="quiz-list-header">

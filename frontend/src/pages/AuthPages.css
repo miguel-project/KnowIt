@@ -1,4 +1,4 @@
-.auth-container {
+/*.auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -116,7 +116,7 @@
   text-decoration: underline;
 }
 
-/* Responsive */
+Responsive
 @media (max-width: 500px) {
   .auth-card {
     padding: 2rem 1.5rem;

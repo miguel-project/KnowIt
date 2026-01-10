@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import api from '../services/api';
+import { getCurrentUser, registerUser, loginUser } from '../services/api';
 
 // Crea il Context
 const AuthContext = createContext();
@@ -29,8 +29,12 @@ export const AuthProvider = ({ children }) => {
     
     if (token) {
       try {
-        const userData = await api.getProfile();
-        setUser(userData);
+        const response = await getCurrentUser();
+        if (response.success) {
+          setUser(response.user);
+        } else {
+          localStorage.removeItem('token');
+        }
       } catch (err) {
         console.error('Token non valido:', err);
         localStorage.removeItem('token');
@@ -41,16 +45,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Registrazione
-  const register = async (userData) => {
+  const register = async (username, email, password) => {
     try {
       setError(null);
-      const response = await api.register(userData);
+      const response = await registerUser(username, email, password);
       
-      // Salva token e user
-      localStorage.setItem('token', response.token);
-      setUser(response.user);
-      
-      return { success: true };
+      if (response.success) {
+        // Salva token e user
+        localStorage.setItem('token', response.token);
+        setUser(response.user);
+        return { success: true };
+      } else {
+        setError(response.message);
+        return { success: false, error: response.message };
+      }
     } catch (err) {
       setError(err.message);
       return { success: false, error: err.message };
@@ -58,16 +66,20 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login
-  const login = async (credentials) => {
+  const login = async (email, password) => {
     try {
       setError(null);
-      const response = await api.login(credentials);
+      const response = await loginUser(email, password);
       
-      // Salva token e user
-      localStorage.setItem('token', response.token);
-      setUser(response.user);
-      
-      return { success: true };
+      if (response.success) {
+        // Salva token e user
+        localStorage.setItem('token', response.token);
+        setUser(response.user);
+        return { success: true };
+      } else {
+        setError(response.message);
+        return { success: false, error: response.message };
+      }
     } catch (err) {
       setError(err.message);
       return { success: false, error: err.message };
@@ -90,5 +102,9 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated: !!user,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
 };

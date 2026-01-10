@@ -1,0 +1,291 @@
+const Quiz = require('../models/Quiz');
+const Question = require('../models/Question');
+
+// @desc    Ottieni tutti i quiz
+// @route   GET /api/quizzes
+// @access  Public
+exports.getAllQuizzes = async (req, res) => {
+  try {
+    const { category, search } = req.query;
+    
+    let query = { isPublic: true };
+    
+    // Filtro per categoria
+    if (category) {
+      query.category = category;
+    }
+    
+    // Ricerca testuale
+    if (search) {
+      query.$text = { $search: search };
+    }
+    
+    const quizzes = await Quiz.find(query)
+      .populate('createdBy', 'username')
+      .populate('questions')
+      .sort({ createdAt: -1 });   //ordinamento decrescente (dal più recente)
+    
+    res.json({
+      success: true,
+      count: quizzes.length,
+      quizzes
+    });
+    
+  } catch (error) {
+    console.error('Errore getAllQuizzes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nel recupero dei quiz',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Ottieni un quiz specifico
+// @route   GET /api/quizzes/:id
+// @access  Public
+exports.getQuizById = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id)
+      .populate('createdBy', 'username email')
+      .populate('questions');
+    
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quiz non trovato'
+      });
+    }
+    
+    res.json({
+      success: true,
+      quiz
+    });
+    
+  } catch (error) {
+    console.error('Errore getQuizById:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nel recupero del quiz',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Crea un nuovo quiz
+// @route   POST /api/quizzes
+// @access  Private (Admin)
+exports.createQuiz = async (req, res) => {
+  try {
+    const { title, description, category, difficulty, isPublic } = req.body;
+    
+    // Validazione
+    if (!title || !description || !category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Titolo, descrizione e categoria sono obbligatori'
+      });
+    }
+    
+    // Crea quiz
+    const quiz = await Quiz.create({
+      title,
+      description,
+      category,
+      difficulty: difficulty || 'medio',
+      isPublic: isPublic !== undefined ? isPublic : true,
+      createdBy: req.user._id
+    });
+    
+    res.status(201).json({
+      success: true,
+      message: 'Quiz creato con successo!',
+      quiz
+    });
+    
+  } catch (error) {
+    console.error('Errore createQuiz:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nella creazione del quiz',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Aggiungi domanda a un quiz
+// @route   POST /api/quizzes/:id/questions
+// @access  Private (Admin)
+exports.addQuestion = async (req, res) => {
+  try {
+    const { questionText, options, correctAnswer, points, timeLimit, explanation } = req.body;
+    
+    // Validazione
+    if (!questionText || !options || correctAnswer === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Testo domanda, opzioni e risposta corretta sono obbligatori'
+      });
+    }
+    
+    // Verifica che il quiz esista
+    const quiz = await Quiz.findById(req.params.id);
+    
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quiz non trovato'
+      });
+    }
+    
+    // Verifica che l'utente sia il creatore
+    if (quiz.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Non autorizzato a modificare questo quiz'
+      });
+    }
+    
+    // Crea domanda
+    const question = await Question.create({
+      quizId: req.params.id,
+      questionText,
+      options,
+      correctAnswer,
+      points: points || 10,
+      timeLimit: timeLimit || 30,
+      explanation,
+      order: quiz.questions.length
+    });
+    
+    // Aggiungi domanda al quiz
+    quiz.questions.push(question._id);
+    await quiz.save();
+    
+    res.status(201).json({
+      success: true,
+      message: 'Domanda aggiunta con successo!',
+      question
+    });
+    
+  } catch (error) {
+    console.error('Errore addQuestion:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nell\'aggiunta della domanda',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Aggiorna un quiz
+// @route   PUT /api/quizzes/:id
+// @access  Private (Admin)
+exports.updateQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+    
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quiz non trovato'
+      });
+    }
+    
+    // Verifica autorizzazione
+    if (quiz.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Non autorizzato a modificare questo quiz'
+      });
+    }
+    
+    const updatedQuiz = await Quiz.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    
+    res.json({
+      success: true,
+      message: 'Quiz aggiornato con successo!',
+      quiz: updatedQuiz
+    });
+    
+  } catch (error) {
+    console.error('Errore updateQuiz:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nell\'aggiornamento del quiz',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Elimina un quiz
+// @route   DELETE /api/quizzes/:id
+// @access  Private (Admin)
+exports.deleteQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findById(req.params.id);
+    
+    if (!quiz) {
+      return res.status(404).json({
+        success: false,
+        message: 'Quiz non trovato'
+      });
+    }
+    
+    // Verifica autorizzazione
+    if (quiz.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Non autorizzato a eliminare questo quiz'
+      });
+    }
+    
+    // Elimina tutte le domande associate
+    await Question.deleteMany({ quizId: req.params.id });
+    
+    // Elimina quiz
+    await quiz.deleteOne();
+    
+    res.json({
+      success: true,
+      message: 'Quiz eliminato con successo!'
+    });
+    
+  } catch (error) {
+    console.error('Errore deleteQuiz:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nell\'eliminazione del quiz',
+      error: error.message
+    });
+  }
+};
+
+// @desc    Ottieni le mie creazioni (quiz creati dall'utente)
+// @route   GET /api/quizzes/my-quizzes
+// @access  Private
+exports.getMyQuizzes = async (req, res) => {
+  try {
+    const quizzes = await Quiz.find({ createdBy: req.user._id })
+      .populate('questions')
+      .sort({ createdAt: -1 });
+    
+    res.json({
+      success: true,
+      count: quizzes.length,
+      quizzes
+    });
+    
+  } catch (error) {
+    console.error('Errore getMyQuizzes:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Errore nel recupero dei tuoi quiz',
+      error: error.message
+    });
+  }
+};

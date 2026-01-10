@@ -1,59 +1,186 @@
-// Configurazione base per le chiamate API
-const API_BASE_URL = 'http://localhost:5001';
+const API_URL = 'http://localhost:5001/api';
 
-// Funzione helper per fare richieste
-const apiRequest = async (endpoint, options = {}) => {
+// Helper per gestire token
+const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
-  
-  const config = {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-      ...options.headers,
-    },
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
   };
+};
 
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    const data = await response.json();
+// ============================================
+// AUTH API
+// ============================================
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Qualcosa è andato storto');
-    }
-
-    return data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
+export const registerUser = async (username, email, password) => {
+  const response = await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, email, password })
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Errore durante la registrazione');
   }
+  
+  return response.json();
 };
 
-// API Endpoints
-export const api = {
-  // Test connessione
-  testConnection: () => apiRequest('/'),
-
-  // Autenticazione
-  register: (userData) => apiRequest('/api/auth/register', {
+export const loginUser = async (email, password) => {
+  const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
-    body: JSON.stringify(userData),
-  }),
-
-  login: (credentials) => apiRequest('/api/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(credentials),
-  }),
-
-  getProfile: () => apiRequest('/api/auth/profile'),
-
-  // Quiz (per dopo)
-  getQuizzes: () => apiRequest('/api/quizzes'),
-  getQuiz: (id) => apiRequest(`/api/quizzes/${id}`),
-  createQuiz: (quizData) => apiRequest('/api/quizzes', {
-    method: 'POST',
-    body: JSON.stringify(quizData),
-  }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Errore durante il login');
+  }
+  
+  return response.json();
 };
 
-export default api;
+export const getCurrentUser = async () => {
+  const response = await fetch(`${API_URL}/auth/me`, {
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    throw new Error('Errore nel recupero dati utente');
+  }
+  
+  return response.json();
+};
+
+// ============================================
+// QUIZ API
+// ============================================
+
+export const getAllQuizzes = async (filters = {}) => {
+  const queryParams = new URLSearchParams();
+  
+  if (filters.category) queryParams.append('category', filters.category);
+  if (filters.search) queryParams.append('search', filters.search);
+  
+  const response = await fetch(`${API_URL}/quizzes?${queryParams}`, {
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    throw new Error('Errore nel recupero dei quiz');
+  }
+  
+  return response.json();
+};
+
+export const getQuizById = async (quizId) => {
+  const response = await fetch(`${API_URL}/quizzes/${quizId}`, {
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    throw new Error('Errore nel recupero del quiz');
+  }
+  
+  return response.json();
+};
+
+export const createQuiz = async (quizData) => {
+  const response = await fetch(`${API_URL}/quizzes`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(quizData)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Errore nella creazione del quiz');
+  }
+  
+  return response.json();
+};
+
+export const addQuestion = async (quizId, questionData) => {
+  const response = await fetch(`${API_URL}/quizzes/${quizId}/questions`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(questionData)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Errore nell\'aggiunta della domanda');
+  }
+  
+  return response.json();
+};
+
+export const updateQuiz = async (quizId, quizData) => {
+  const response = await fetch(`${API_URL}/quizzes/${quizId}`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(quizData)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Errore nell\'aggiornamento del quiz');
+  }
+  
+  return response.json();
+};
+
+export const deleteQuiz = async (quizId) => {
+  const response = await fetch(`${API_URL}/quizzes/${quizId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Errore nell\'eliminazione del quiz');
+  }
+  
+  return response.json();
+};
+
+export const getMyQuizzes = async () => {
+  const response = await fetch(`${API_URL}/quizzes/my/quizzes`, {
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    throw new Error('Errore nel recupero dei tuoi quiz');
+  }
+  
+  return response.json();
+};
+
+// ============================================
+// TEST CONNECTION
+// ============================================
+
+export const testConnection = async () => {
+  const response = await fetch('http://localhost:5001');
+  return response.json();
+};
+
+/*// Export default object
+const api = {
+  registerUser,
+  loginUser,
+  getCurrentUser,
+  getAllQuizzes,
+  getQuizById,
+  createQuiz,
+  addQuestion,
+  updateQuiz,
+  deleteQuiz,
+  getMyQuizzes,
+  testConnection
+};
+
+export default api;*/

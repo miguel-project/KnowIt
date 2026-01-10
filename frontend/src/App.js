@@ -1,80 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate, useNavigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import HomePage from './pages/HomePage';
+import LoginPage from './pages/loginPage';
+import RegisterPage from './pages/RegisterPage';
 import './App.css';
 
-function App() {
-  const [backendStatus, setBackendStatus] = useState('🔄 Verificando...');
-  const [pinCode, setPinCode] = useState('');
+// Componente Navbar
+function Navbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    // Test connessione backend
-    fetch('http://localhost:5001')
-      .then(res => res.json())
-      .then(data => setBackendStatus('✅ ' + data.message))
-      .catch(err => setBackendStatus('❌ Backend non raggiungibile'));
-  }, []);
-
-  const handleJoinGame = () => {
-    if (pinCode.trim()) {
-      alert(`Tentativo di unirsi al gioco con PIN: ${pinCode}`);
-    } else {
-      alert('Inserisci un PIN valido!');
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/');
   };
 
   return (
-    <div className="App">
-      <nav className="navbar">
-        <div className="logo">KnowIt</div>
-        <ul className="nav-menu">
-          <li>Home</li>
-          <li>Classifica Globale</li>
-          <li>Chi Siamo</li>
-          <li>FAQ</li>
-          <li>Contatti</li>
-          <li className="accedi">Accedi</li>
-        </ul>
-      </nav>
-
-      <main className="main-content">
-        {/*<div className="status-badge">
-          {backendStatus}
-        </div>  UTILE PER VERIFICARE LO STATO DI CONNESSIONE BACKEND*/}
-
-        <h1>Benvenuto in KnowIt!</h1>
-        <p className="subtitle">Crea, gioca e sfida i tuoi amici</p>
+    <nav className="navbar">
+      <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+        🎮 KnowIt
+      </div>
+      <ul className="nav-menu">
+        <li onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Home</li>
+        <li style={{ cursor: 'pointer' }}>Classifica Globale</li>
+        <li style={{ cursor: 'pointer' }}>Chi Siamo</li>
+        <li style={{ cursor: 'pointer' }}>FAQ</li>
+        <li style={{ cursor: 'pointer' }}>Contatti</li>
         
-        <section className="booking-section">
-          <h2>Unisciti a una Partita</h2>
-          <div className="pin-container">
-            <input 
-              type="text" 
-              placeholder="Inserisci PIN" 
-              className="pin-input"
-              value={pinCode}
-              onChange={(e) => setPinCode(e.target.value.toUpperCase())}
-              maxLength={6}
-            />
-            <button className="join-button" onClick={handleJoinGame}>
-              Unisciti
-            </button>
-          </div>
-        </section>
+        {user ? (
+          <>
+            <li className="username">Ciao, {user.username}!</li>
+            <li className="logout-btn" onClick={handleLogout}>Logout</li>
+          </>
+        ) : (
+          <>
+            <li className="accedi" onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>
+              Accedi
+            </li>
+            <li onClick={() => navigate('/register')} style={{ cursor: 'pointer' }}>
+              Registrati
+            </li>
+          </>
+        )}
+      </ul>
+    </nav>
+  );
+}
 
-        <section className="game-options">
-          <div className="game-option">
-            <div className="option-icon">🎯</div>
-            <h3>Modalità cooperativa</h3>
-            <p>Modalità classica con domande progressive</p>
-            <button className="category-button">Inizia</button>
-          </div>
-
-          <div className="game-option">
-            <div className="option-icon">⚡</div>
-            <h3>Modalità sfida</h3>
-            <p>Modalità veloce contro il tempo</p>
-            <button className="category-button">Inizia</button>
-          </div>
-        </section>
+// Componente principale
+function AppContent() {
+  return (
+    <div className="App">
+      <Navbar />
+      
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       </main>
 
       <footer className="footer">
@@ -82,6 +68,17 @@ function App() {
         <p className="footer-info">Realizzato da Antonio Marinotti, Giovanni Grimaldi, Michele Santopietro</p>
       </footer>
     </div>
+  );
+}
+
+// Wrap con Router e AuthProvider
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
   );
 }
 

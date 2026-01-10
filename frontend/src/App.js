@@ -8,6 +8,7 @@ import './App.css';
 import QuizDetailPage from './pages/QuizDetailPage';
 import QuizListPage from './pages/QuizListPage';
 import CreateQuizPage from './pages/CreateQuizPage';
+import PlayQuizPage from './pages/PlayQuizPage';
 
 // Componente Navbar
 function Navbar() {
@@ -64,7 +65,8 @@ function AppContent() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/quizzes" element={<QuizListPage />} />
             <Route path="/create-quiz" element={<CreateQuizPage />} />
-            <Route path="/quiz/:id" element={<QuizDetailPage />} />  {/* ← AGGIUNGI */}
+            <Route path="/quiz/:id" element={<QuizDetailPage />} /> 
+            <Route path="/play/:id" element={<PlayQuizPage />} />
             <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </main>

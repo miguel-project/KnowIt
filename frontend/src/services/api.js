@@ -168,6 +168,75 @@ export const testConnection = async () => {
   return response.json();
 };
 
+// ============================================
+// RESULTS API
+// ============================================
+
+export const saveResult = async (resultData) => {
+  const response = await fetch(`${API_URL}/results`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(resultData)
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Errore nel salvataggio del risultato');
+  }
+  
+  return response.json();
+};
+
+export const getQuizLeaderboard = async (quizId, limit = 10) => {
+  const response = await fetch(`${API_URL}/results/quiz/${quizId}?limit=${limit}`, {
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    throw new Error('Errore nel recupero della leaderboard');
+  }
+  
+  return response.json();
+};
+
+export const getUserResults = async (userId) => {
+  const response = await fetch(`${API_URL}/results/user/${userId}`, {
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    throw new Error('Errore nel recupero dei risultati utente');
+  }
+  
+  return response.json();
+};
+
+export const getGlobalStats = async () => {
+  const response = await fetch(`${API_URL}/results/stats/global`, {
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    throw new Error('Errore nel recupero delle statistiche');
+  }
+  
+  return response.json();
+};
+
+export const deleteResult = async (resultId) => {
+  const response = await fetch(`${API_URL}/results/${resultId}`, {
+    method: 'DELETE',
+    headers: getAuthHeaders()
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Errore nell\'eliminazione del risultato');
+  }
+  
+  return response.json();
+};
+
 /*// Export default object
 const api = {
   registerUser,

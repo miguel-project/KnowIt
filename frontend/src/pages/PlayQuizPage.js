@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getQuizById } from '../services/api';
+import { getQuizById, saveResult } from '../services/api';
 import './PlayQuizPage.css';
 
 function PlayQuizPage() {
@@ -21,6 +21,7 @@ function PlayQuizPage() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [resultSaved, setResultSaved] = useState(false);
 
   // Carica quiz
   useEffect(() => {
@@ -80,7 +81,7 @@ function PlayQuizPage() {
     // Avanza dopo 2 secondi
     setTimeout(() => {
       nextQuestion();
-    }, 2000);
+    }, 5000);
   };
 
   // Prossima domanda
@@ -90,6 +91,9 @@ function PlayQuizPage() {
     if (nextIndex >= quiz.questions.length) {
       // Fine quiz
       setGameState('finished');
+      if (user) {
+        saveGameResult();
+      }
     } else {
       // Prossima domanda
       setCurrentQuestionIndex(nextIndex);
@@ -106,6 +110,7 @@ function PlayQuizPage() {
     setShowFeedback(false);
     setScore(0);
     setAnswers([]);
+    setResultSaved(false);
   };
 
   // Calcola statistiche finali
@@ -117,6 +122,30 @@ function PlayQuizPage() {
 
     return { totalQuestions, correctAnswers, maxScore, percentage};
   };
+
+  // Salva risultato nel database
+const saveGameResult = async () => {
+  try {
+    const stats = getFinalStats();
+    
+    const resultData = {
+      quizId: quiz._id,
+      score: score,
+      maxScore: stats.maxScore,
+      percentage: stats.percentage,
+      correctAnswers: stats.correctAnswers,
+      totalQuestions: stats.totalQuestions,
+      answers: answers
+    };
+
+    await saveResult(resultData);
+    setResultSaved(true);
+    console.log('✅ Risultato salvato con successo');
+  } catch (error) {
+    console.error('❌ Errore nel salvare il risultato:', error);
+    // Non bloccare l'utente se il salvataggio fallisce
+  }
+};
 
   if (loading) {
     return <div className="loading">Caricamento quiz...</div>;
@@ -326,9 +355,15 @@ function PlayQuizPage() {
             </button>
           </div>
 
-          {user && (
+          {user && resultSaved && (
             <div className="save-score-info">
-              💾 Il tuo punteggio è stato salvato!
+              ✅ Il tuo punteggio è stato salvato!
+            </div>
+          )}
+
+          {user && !resultSaved && (
+            <div className="save-score-info saving">
+              💾 Salvataggio in corso...
             </div>
           )}
         </div>

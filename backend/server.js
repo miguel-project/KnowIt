@@ -32,6 +32,7 @@ app.use('/api/auth', authRoutes);
 // ✅ ROUTES (NECESSARIE!)
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/quizzes', require('./routes/quizzes'));
+app.use('/api/results', require('./routes/resultsRoutes'));
 
 app.get('/', (req, res) => {
   res.json({ message: 'Backend funzionante!' });

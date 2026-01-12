@@ -16,10 +16,25 @@
 }
 
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.logo-img {
+  height: 80px;
+  width: auto;
+  transition: transform 0.3s;
+}
+
+.logo-img:hover {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.logo-text {
   font-size: 1.8rem;
   font-weight: bold;
   color: #667eea;
-  cursor: pointer;
 }
 
 .nav-menu {

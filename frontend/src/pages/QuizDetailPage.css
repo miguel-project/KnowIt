@@ -248,4 +248,22 @@
   .play-quiz-btn {
     min-width: 100%;
   }
+
+  /* LEADERBOARD */
+  .leaderboard-quiz-btn {
+  background: #FF9800;
+  color: white;
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  }
+
+  .leaderboard-quiz-btn:hover {
+  background: #F57C00;
+  transform: translateY(-2px);
+  }
 }

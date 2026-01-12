@@ -9,6 +9,8 @@ import QuizDetailPage from './pages/QuizDetailPage';
 import QuizListPage from './pages/QuizListPage';
 import CreateQuizPage from './pages/CreateQuizPage';
 import PlayQuizPage from './pages/PlayQuizPage';
+import LeaderboardPage from './pages/LeaderboardPage';
+import logo from './assets/logo.png';
 
 // Componente Navbar
 function Navbar() {
@@ -23,14 +25,12 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        🎮 KnowIt
+        <img src={logo} alt="KnowIt Logo" className="logo-img" />
+        <span className="logo-text">KnowIt</span>
       </div>
       <ul className="nav-menu">
-        <li onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>Home</li>
-        <li style={{ cursor: 'pointer' }}>Classifica Globale</li>
-        <li style={{ cursor: 'pointer' }}>Chi Siamo</li>
-        <li style={{ cursor: 'pointer' }}>FAQ</li>
-        <li style={{ cursor: 'pointer' }}>Contatti</li>
+        <li onClick={() => navigate('/quizzes')} style={ {cursor: 'pointer'}}>Lista Quiz</li>
+        <li onClick={() => navigate('/leaderboard')} style={{ cursor: 'pointer' }}>Classifica Globale</li>
         
         {user ? (
           <>
@@ -68,6 +68,8 @@ function AppContent() {
             <Route path="/quiz/:id" element={<QuizDetailPage />} /> 
             <Route path="/play/:id" element={<PlayQuizPage />} />
             <Route path="*" element={<Navigate to="/" />} />
+            <Route path="/leaderboard" element={<LeaderboardPage key="global" />} />
+            <Route path="/leaderboard/:quizId" element={<LeaderboardPage key="quiz" />} />
         </Routes>
       </main>
 

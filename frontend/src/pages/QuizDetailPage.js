@@ -129,6 +129,13 @@ function QuizDetailPage() {
             🎮 Gioca Ora
           </button>
 
+          <button 
+            className="leaderboard-quiz-btn"
+            onClick={() => navigate(`/leaderboard/${id}`)}
+          >
+            🏆 Classifica
+          </button>
+
           {isOwner && (
             <>
               <button 

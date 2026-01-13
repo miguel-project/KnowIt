@@ -9,11 +9,11 @@ const {
   deleteQuiz,
   getMyQuizzes
 } = require('../controllers/quizController');
-const { protect, adminOnly } = require('../middleware/auth');
+const { protect, optionalAuth } = require('../middleware/auth');
 
 // Route pubbliche
-router.get('/', getAllQuizzes);
-router.get('/:id', getQuizById);
+router.get('/', optionalAuth, getAllQuizzes);
+router.get('/:id', optionalAuth, getQuizById);
 
 // Route protette (richiedono login)
 router.get('/my/quizzes', protect, getMyQuizzes);

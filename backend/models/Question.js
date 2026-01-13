@@ -44,13 +44,6 @@ const questionSchema = new mongoose.Schema({
     max: [100, 'I punti non possono superare 100']
   },
   
-  timeLimit: {
-    type: Number,
-    default: 30,
-    min: [5, 'Il tempo limite deve essere almeno 5 secondi'],
-    max: [120, 'Il tempo limite non può superare 120 secondi']
-  },
-  
   explanation: {
     type: String,
     trim: true,

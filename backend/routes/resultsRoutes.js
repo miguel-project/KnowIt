@@ -7,11 +7,11 @@ const {
   getGlobalStats,
   deleteResult
 } = require('../controllers/resultController');
-const { protect } = require('../middleware/auth');
+const { protect, optionalAuth } = require('../middleware/auth');
 
 // Rotte pubbliche
-router.get('/quiz/:quizId', getQuizResults);
-router.get('/stats/global', getGlobalStats);
+router.get('/quiz/:quizId', optionalAuth, getQuizResults);
+router.get('/stats/global', optionalAuth, getGlobalStats);
 
 // Rotte protette
 router.post('/', protect, saveResult);

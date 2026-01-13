@@ -138,12 +138,6 @@ function QuizDetailPage() {
 
           {isOwner && (
             <>
-              <button 
-                className="edit-quiz-btn"
-                onClick={() => navigate(`/edit-quiz/${id}`)}
-              >
-                ✏️ Modifica
-              </button>
               <button className="delete-quiz-btn" onClick={handleDelete}>
                 🗑️ Elimina
               </button>

@@ -6,33 +6,61 @@ const Question = require('../models/Question');
 // @access  Public
 exports.getAllQuizzes = async (req, res) => {
   try {
-    const { category, search } = req.query;
+    const { category, difficulty, search } = req.query;
     
-    let query = { isPublic: true };
+    // Costruisci filtro base
+    let filter = {};
     
-    // Filtro per categoria
-    if (category) {
-      query.category = category;
+    // Se l'utente è autenticato, mostra quiz pubblici + i suoi privati
+    // Se NON è autenticato, mostra solo pubblici
+    if (req.user) {
+      filter.$or = [
+        { isPublic: true },
+        { createdBy: req.user.id }
+      ];
+    } else {
+      filter.isPublic = true;
     }
-    
-    // Ricerca testuale
+
+    // Aggiungi altri filtri
+    if (category) filter.category = category;
+    if (difficulty) filter.difficulty = difficulty;
     if (search) {
-      query.$text = { $search: search };
+      const searchFilter = {
+        $or: [
+          { title: { $regex: search, $options: 'i' } },
+          { description: { $regex: search, $options: 'i' } }
+        ]
+      };
+      
+      // Combina con filtro esistente
+      if (filter.$or) {
+        filter = {
+          $and: [
+            { $or: filter.$or },
+            { $or: searchFilter.$or }
+          ]
+        };
+        if (category) filter.category = category;
+        if (difficulty) filter.difficulty = difficulty;
+      } else {
+        filter = { ...filter, ...searchFilter };
+      }
     }
-    
-    const quizzes = await Quiz.find(query)
+
+    const quizzes = await Quiz.find(filter)
       .populate('createdBy', 'username')
       .populate('questions')
-      .sort({ createdAt: -1 });   //ordinamento decrescente (dal più recente)
-    
+      .sort({ createdAt: -1 });
+
     res.json({
       success: true,
-      count: quizzes.length,
-      quizzes
+      quizzes,
+      count: quizzes.length
     });
-    
+
   } catch (error) {
-    console.error('Errore getAllQuizzes:', error);
+    console.error('Errore nel recupero quiz:', error);
     res.status(500).json({
       success: false,
       message: 'Errore nel recupero dei quiz',

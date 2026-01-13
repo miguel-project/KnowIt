@@ -65,8 +65,14 @@ export const getAllQuizzes = async (filters = {}) => {
   if (filters.category) queryParams.append('category', filters.category);
   if (filters.search) queryParams.append('search', filters.search);
   
+  const authHeaders = getAuthHeaders();
+  
+  // DEBUG
+  console.log('🔑 Headers inviati:', authHeaders);
+  console.log('🌐 URL:', `${API_URL}/quizzes?${queryParams}`);
+  
   const response = await fetch(`${API_URL}/quizzes?${queryParams}`, {
-    headers: getAuthHeaders()
+    headers: authHeaders
   });
   
   if (!response.ok) {

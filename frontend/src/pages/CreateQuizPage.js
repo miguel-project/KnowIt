@@ -277,18 +277,6 @@ function CreateQuizPage() {
                   max="100"
                 />
               </div>
-
-              <div className="form-group">
-                <label>Tempo (secondi)</label>
-                <input
-                  type="number"
-                  name="timeLimit"
-                  value={currentQuestion.timeLimit}
-                  onChange={handleQuestionChange}
-                  min="5"
-                  max="120"
-                />
-              </div>
             </div>
 
             <div className="form-group">

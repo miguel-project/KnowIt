@@ -80,7 +80,7 @@ function HomePage() {
             </button>
           ) : (
             <div className='instruction'>
-              Esegui l'accesso o registrati per creare quiz 
+              Esegui l'accesso o registrati per creare quiz e salvare i tuoi progressi 
             </div>
           )}
         </div>

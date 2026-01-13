@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'https://knowit-scrf.onrender.com/api';
 
 // Helper per gestire token
 const getAuthHeaders = () => {
@@ -170,7 +170,7 @@ export const getMyQuizzes = async () => {
 // ============================================
 
 export const testConnection = async () => {
-  const response = await fetch('http://localhost:5001');
+  const response = await fetch('${API_URL}/test');
   return response.json();
 };
 

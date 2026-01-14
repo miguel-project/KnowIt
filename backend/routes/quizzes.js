@@ -5,7 +5,6 @@ const {
   getQuizById,
   createQuiz,
   addQuestion,
-  updateQuiz,
   deleteQuiz,
   getMyQuizzes,
   adminGetAllQuizzes,
@@ -24,7 +23,6 @@ router.get('/my/quizzes', protect, getMyQuizzes);
 // Route admin (richiedono login + ruolo admin)
 router.post('/', protect, createQuiz);
 router.post('/:id/questions', protect, addQuestion);
-router.put('/:id', protect, updateQuiz);
 router.delete('/:id', protect, deleteQuiz);
 
 // ==========================================

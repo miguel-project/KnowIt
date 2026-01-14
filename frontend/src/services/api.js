@@ -124,21 +124,6 @@ export const addQuestion = async (quizId, questionData) => {
   return response.json();
 };
 
-export const updateQuiz = async (quizId, quizData) => {
-  const response = await fetch(`${API_URL}/quizzes/${quizId}`, {
-    method: 'PUT',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(quizData)
-  });
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Errore nell\'aggiornamento del quiz');
-  }
-  
-  return response.json();
-};
-
 export const deleteQuiz = async (quizId) => {
   const response = await fetch(`${API_URL}/quizzes/${quizId}`, {
     method: 'DELETE',
@@ -242,20 +227,3 @@ export const deleteResult = async (resultId) => {
   
   return response.json();
 };
-
-/*// Export default object
-const api = {
-  registerUser,
-  loginUser,
-  getCurrentUser,
-  getAllQuizzes,
-  getQuizById,
-  createQuiz,
-  addQuestion,
-  updateQuiz,
-  deleteQuiz,
-  getMyQuizzes,
-  testConnection
-};
-
-export default api;*/

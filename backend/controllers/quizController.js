@@ -22,7 +22,7 @@ exports.getAllQuizzes = async (req, res) => {
       role: req.user.role,
       roleType: typeof req.user.role
       });
-      
+
       if (req.user.role === 'admin') {
         // Admin: nessun filtro su isPublic (vede tutto)
         filter = {};
@@ -185,14 +185,6 @@ exports.addQuestion = async (req, res) => {
       });
     }
     
-    // Verifica che l'utente sia il creatore
-    if (quiz.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Non autorizzato a modificare questo quiz'
-      });
-    }
-    
     // Crea domanda
     const question = await Question.create({
       quizId: req.params.id,
@@ -220,50 +212,6 @@ exports.addQuestion = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Errore nell\'aggiunta della domanda',
-      error: error.message
-    });
-  }
-};
-
-// @desc    Aggiorna un quiz
-// @route   PUT /api/quizzes/:id
-// @access  Private (Admin)
-exports.updateQuiz = async (req, res) => {
-  try {
-    const quiz = await Quiz.findById(req.params.id);
-    
-    if (!quiz) {
-      return res.status(404).json({
-        success: false,
-        message: 'Quiz non trovato'
-      });
-    }
-    
-    // Verifica autorizzazione
-    if (quiz.createdBy.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-      return res.status(403).json({
-        success: false,
-        message: 'Non autorizzato a modificare questo quiz'
-      });
-    }
-    
-    const updatedQuiz = await Quiz.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    
-    res.json({
-      success: true,
-      message: 'Quiz aggiornato con successo!',
-      quiz: updatedQuiz
-    });
-    
-  } catch (error) {
-    console.error('Errore updateQuiz:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Errore nell\'aggiornamento del quiz',
       error: error.message
     });
   }

@@ -53,42 +53,52 @@ exports.protect = async (req, res, next) => {
   }
 };
 
-// Middleware OPZIONALE: estrae user se c'è token, ma non blocca se manca
 exports.optionalAuth = async (req, res, next) => {
   try {
     let token;
 
-    // Controlla se c'è il token nell'header Authorization
+    console.log('🔍 optionalAuth - Start');
+    console.log('📋 Headers:', req.headers.authorization);
+
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+      console.log('🔑 Token trovato:', token.substring(0, 20) + '...');
 
       try {
-        // Verifica il token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log('✅ Token decodificato:', decoded);
 
-        // Trova l'utente e salvalo in req.user
         req.user = await User.findById(decoded.id).select('-password');
 
+        if (req.user) {
+          console.log('✅ User trovato:', {
+            _id: req.user._id,
+            username: req.user.username,
+            email: req.user.email,
+            role: req.user.role  // ← IMPORTANTE!
+          });
+        } else {
+          console.log('⚠️ User non trovato nel DB');
+          req.user = null;
+        }
 
       } catch (error) {
-        // Token non valido, ma non blocchiamo la richiesta
         console.log('⚠️ Token non valido:', error.message);
         req.user = null;
       }
 
     } else {
-      // Nessun token, ma continuiamo comunque
       console.log('ℹ️ Nessun token Authorization');
       req.user = null;
     }
 
-    console.log('🏁 optionalAuth - req.user finale:', req.user ? req.user.username : 'null');
-    next(); // Passa sempre al prossimo middleware
+    console.log('🏁 optionalAuth - req.user.role finale:', req.user?.role);
+    next();
 
   } catch (error) {
     console.error('❌ Errore in optionalAuth:', error);
     req.user = null;
-    next(); // Continua comunque
+    next();
   }
 };
 

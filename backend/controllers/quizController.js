@@ -7,19 +7,38 @@ const Question = require('../models/Question');
 exports.getAllQuizzes = async (req, res) => {
   try {
     const { category, difficulty, search } = req.query;
-    
+
     // Costruisci filtro base
     let filter = {};
     
-    // Se l'utente è autenticato, mostra quiz pubblici + i suoi privati
-    // Se NON è autenticato, mostra solo pubblici
+    // ADMIN vede TUTTI i quiz (pubblici + privati di tutti)
+    // USER vede quiz pubblici + i suoi privati
+    // GUEST vede solo quiz pubblici
     if (req.user) {
-      filter.$or = [
-        { isPublic: true },
-        { createdBy: req.user.id }
-      ];
+      console.log('🔍 getAllQuizzes - req.user:', {
+      _id: req.user._id,
+      username: req.user.username,
+      email: req.user.email,
+      role: req.user.role,
+      roleType: typeof req.user.role
+      });
+      
+      if (req.user.role === 'admin') {
+        // Admin: nessun filtro su isPublic (vede tutto)
+        filter = {};
+        console.log('👑 Admin loggato - Mostra TUTTI i quiz');
+      } else {
+        // User normale: pubblici + i suoi privati
+        filter.$or = [
+          { isPublic: true },
+          { createdBy: req.user._id }
+        ];
+        console.log('👤 User loggato - Mostra pubblici + i suoi privati');
+      }
     } else {
+      // Guest: solo pubblici
       filter.isPublic = true;
+      console.log('👻 Guest - Solo quiz pubblici');
     }
 
     // Aggiungi altri filtri
@@ -316,4 +335,111 @@ exports.getMyQuizzes = async (req, res) => {
       error: error.message
     });
   }
+};
+
+// ==========================================
+// ROUTE ADMIN
+// ==========================================
+
+// Admin elimina qualsiasi quiz
+exports.adminDeleteQuiz = async (req, res) => {
+  try {
+    const quiz = await Quiz.findByIdAndDelete(req.params.id);
+    
+    if (!quiz) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Quiz non trovato' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: `Quiz "${quiz.title}" eliminato dall'amministratore`,
+      deletedQuiz: {
+        id: quiz._id,
+        title: quiz.title,
+        createdBy: quiz.createdBy
+      }
+    });
+  } catch (error) {
+    console.error('Errore eliminazione quiz admin:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Errore nell\'eliminazione del quiz',
+      error: error.message 
+    });
+  }
+};
+
+// Admin visualizza tutti i quiz (pubblici + privati di tutti)
+exports.adminGetAllQuizzes = async (req, res) => {
+  try {
+    const quizzes = await Quiz.find()
+      .populate('createdBy', 'username email role')
+      .populate('questions')
+      .sort({ createdAt: -1 });
+    
+    const stats = {
+      total: quizzes.length,
+      public: quizzes.filter(q => q.isPublic).length,
+      private: quizzes.filter(q => !q.isPublic).length
+    };
+    
+    res.json({
+      success: true,
+      quizzes,
+      stats,
+      count: quizzes.length
+    });
+  } catch (error) {
+    console.error('Errore recupero quiz admin:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Errore nel recupero dei quiz',
+      error: error.message 
+    });
+  }
+};
+
+// Admin ottiene statistiche avanzate
+exports.adminGetStats = async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const Result = require('../models/Result');
+    
+    const totalQuizzes = await Quiz.countDocuments();
+    const totalUsers = await User.countDocuments();
+    const totalResults = await Result.countDocuments();
+    const publicQuizzes = await Quiz.countDocuments({ isPublic: true });
+    const privateQuizzes = await Quiz.countDocuments({ isPublic: false });
+    
+    // Quiz più giocati
+    const mostPlayed = await Quiz.find()
+      .sort({ totalPlays: -1 })
+      .limit(5)
+      .select('title totalPlays createdBy')
+      .populate('createdBy', 'username');
+    
+    res.json({
+      success: true,
+      stats: {
+        quizzes: {
+          total: totalQuizzes,
+          public: publicQuizzes,
+          private: privateQuizzes
+        },
+        users: totalUsers,
+        totalGamesPlayed: totalResults,
+        mostPlayedQuizzes: mostPlayed
+      }
+    });
+  } catch (error) {
+    console.error('Errore statistiche admin:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Errore nel recupero delle statistiche',
+      error: error.message 
+    });
+  };
 };

@@ -87,6 +87,8 @@ function QuizDetailPage() {
     String(quiz.createdBy._id) === String(user._id)
   );
 
+  const canDelete = isOwner || (user && user.role === 'admin');
+
   return (
     <div className="quiz-detail-container">
       <button onClick={() => navigate('/quizzes')} className="back-btn">
@@ -136,7 +138,7 @@ function QuizDetailPage() {
             🏆 Classifica
           </button>
 
-          {isOwner && (
+          {canDelete && (
             <>
               <button className="delete-quiz-btn" onClick={handleDelete}>
                 🗑️ Elimina

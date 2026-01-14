@@ -17,6 +17,7 @@ function QuizListPage() {
   });
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered - loadQuizzes()');
     loadQuizzes();
   }, []);
 
@@ -25,9 +26,21 @@ function QuizListPage() {
     setError('');
     
     try {
+      console.log('🔍 API call - filters:', filterParams);
       const data = await getAllQuizzes(filterParams);
+      
+      console.log('═══════════════════════════════');
+      console.log('📡 BACKEND RESPONSE');
+      console.log('═══════════════════════════════');
+      console.log('Success:', data.success);
+      console.log('Count:', data.count);
+      console.log('Quizzes length:', data.quizzes?.length);
+      console.log('Quizzes:', data.quizzes);
+      console.log('═══════════════════════════════\n');
+      
       setQuizzes(data.quizzes);
     } catch (err) {
+      console.error('❌ ERROR:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -41,7 +54,7 @@ function QuizListPage() {
     loadQuizzes(newFilters);
   };
 
-const getDifficultyColor = (difficulty) => {
+  const getDifficultyColor = (difficulty) => {
     switch(difficulty) {
       case 'facile': return '#4CAF50';
       case 'medio': return '#FF9800';
@@ -49,6 +62,8 @@ const getDifficultyColor = (difficulty) => {
       default: return '#999';
     }
   };
+  
+  console.log('🎨 RENDER - loading:', loading, '| quizzes:', quizzes.length);
   
   return (
     <div className="quiz-list-container">
@@ -108,6 +123,7 @@ const getDifficultyColor = (difficulty) => {
         </div>
       ) : (
         <div className="quiz-grid">
+          {console.log('🎨 Rendering', quizzes.length, 'quiz cards')}
           {quizzes.map(quiz => (
             <div key={quiz._id} className="quiz-card">
               <div className="quiz-card-header">

@@ -305,7 +305,7 @@ function CreateQuizPage() {
                   <div>
                     <strong>Q{index + 1}:</strong> {q.questionText}
                     <div className="question-meta">
-                      {q.options.length} opzioni • {q.points} punti • {q.timeLimit}s
+                      {q.options.length} opzioni • {q.points} punti
                     </div>
                   </div>
                   <button onClick={() => removeQuestion(index)} className="remove-btn">

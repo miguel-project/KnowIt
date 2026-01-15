@@ -10,9 +10,9 @@ const generateToken = (userId) => {
   );
 };
 
-// @desc    Registrazione nuovo utente
-// @route   POST /api/auth/register
-// @access  Public
+// Registrazione nuovo utente
+// POST /api/auth/register
+// Public
 exports.register = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -69,9 +69,9 @@ exports.register = async (req, res) => {
   }
 };
 
-// @desc    Login utente
-// @route   POST /api/auth/login
-// @access  Public
+// Login utente
+// POST /api/auth/login
+// Public
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -129,9 +129,9 @@ exports.login = async (req, res) => {
   }
 };
 
-// @desc    Ottieni dati utente loggato
-// @route   GET /api/auth/me
-// @access  Private (richiede token)
+// Ottieni dati utente loggato
+// GET /api/auth/me
+// Private (richiede token)
 exports.getMe = async (req, res) => {
   try {
     // req.user è stato aggiunto dal middleware di autenticazione

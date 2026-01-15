@@ -25,9 +25,8 @@ router.post('/', protect, createQuiz);
 router.post('/:id/questions', protect, addQuestion);
 router.delete('/:id', protect, deleteQuiz);
 
-// ==========================================
+
 // ROUTE ADMIN
-// ==========================================
 router.get('/admin/all', protect, adminOnly, adminGetAllQuizzes);
 router.get('/admin/stats', protect, adminOnly, adminGetStats);
 router.delete('/admin/:id', protect, adminOnly, adminDeleteQuiz);

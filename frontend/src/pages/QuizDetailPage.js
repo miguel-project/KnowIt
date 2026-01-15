@@ -157,7 +157,6 @@ function QuizDetailPage() {
                 <div className="question-number">Domanda {index + 1}</div>
                 <div className="question-text">{question.questionText}</div>
                 <div className="question-info">
-                  <span>⏱️ {question.timeLimit}s</span>
                   <span>🏆 {question.points} punti</span>
                   <span>✅ {question.options?.length || 0} opzioni</span>
                 </div>

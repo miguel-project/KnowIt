@@ -17,7 +17,7 @@ function QuizListPage() {
   });
 
   useEffect(() => {
-    console.log('🔄 useEffect triggered - loadQuizzes()');
+    console.log('useEffect triggered - loadQuizzes()');
     loadQuizzes();
   }, []);
 
@@ -26,11 +26,11 @@ function QuizListPage() {
     setError('');
     
     try {
-      console.log('🔍 API call - filters:', filterParams);
+      console.log('API call - filters:', filterParams);
       const data = await getAllQuizzes(filterParams);
       
       console.log('═══════════════════════════════');
-      console.log('📡 BACKEND RESPONSE');
+      console.log('BACKEND RESPONSE');
       console.log('═══════════════════════════════');
       console.log('Success:', data.success);
       console.log('Count:', data.count);
@@ -63,7 +63,7 @@ function QuizListPage() {
     }
   };
   
-  console.log('🎨 RENDER - loading:', loading, '| quizzes:', quizzes.length);
+  console.log('RENDER - loading:', loading, '| quizzes:', quizzes.length);
   
   return (
     <div className="quiz-list-container">
@@ -123,7 +123,7 @@ function QuizListPage() {
         </div>
       ) : (
         <div className="quiz-grid">
-          {console.log('🎨 Rendering', quizzes.length, 'quiz cards')}
+          {console.log('Rendering', quizzes.length, 'quiz cards')}
           {quizzes.map(quiz => (
             <div key={quiz._id} className="quiz-card">
               <div className="quiz-card-header">

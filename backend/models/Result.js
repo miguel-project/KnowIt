@@ -40,22 +40,22 @@ const resultSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       required: true
     },
+
     selectedAnswer: {
       type: Number,
       required: true
     },
-    correctAnswer: {
-      type: Number,
-      required: true
-    },
+
     isCorrect: {
       type: Boolean,
       required: true
     },
-    points: {
+    pointsEarned: {
       type: Number,
-      required: true
+      required: true,
+      default: 0
     }
+
   }],
   completedAt: {
     type: Date,

@@ -29,7 +29,7 @@ console.log('authRoutes:', typeof authRoutes);  // Deve dire "function"
 app.use('/api/auth', authRoutes);
 
 
-// ✅ ROUTES (NECESSARIE!)
+// ROUTES (NECESSARIE!)
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/quizzes', require('./routes/quizzes'));
 app.use('/api/results', require('./routes/resultsRoutes'));
@@ -42,20 +42,20 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK' });
 });
 
-// ✅ VARIABILI (DOPO I MIDDLEWARE, PRIMA DELLA CONNESSIONE)
+// VARIABILI (DOPO I MIDDLEWARE, PRIMA DELLA CONNESSIONE)
 const PORT = process.env.PORT || 5001;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// ✅ CONNESSIONE MONGODB E AVVIO SERVER (NECESSARI!)
+// ONNESSIONE MONGODB E AVVIO SERVER (NECESSARI!)
 mongoose.connect(MONGODB_URI)
   .then(() => {
-    console.log('✅ MongoDB connesso');
+    console.log('MongoDB connesso');
     app.listen(PORT, () => {
-      console.log(`✅ Server su http://localhost:${PORT}`);
+      console.log(`Server su http://localhost:${PORT}`);
     });
   })
   .catch(err => {
-    console.error('❌ Errore MongoDB:', err.message);
+    console.error('Errore MongoDB:', err.message);
     process.exit(1);
   });
 

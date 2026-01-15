@@ -57,46 +57,46 @@ exports.optionalAuth = async (req, res, next) => {
   try {
     let token;
 
-    console.log('🔍 optionalAuth - Start');
-    console.log('📋 Headers:', req.headers.authorization);
+    console.log('optionalAuth - Start');
+    console.log('Headers:', req.headers.authorization);
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
-      console.log('🔑 Token trovato:', token.substring(0, 20) + '...');
+      console.log('Token trovato:', token.substring(0, 20) + '...');
 
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('✅ Token decodificato:', decoded);
+        console.log('Token decodificato:', decoded);
 
         req.user = await User.findById(decoded.id).select('-password');
 
         if (req.user) {
-          console.log('✅ User trovato:', {
+          console.log('User trovato:', {
             _id: req.user._id,
             username: req.user.username,
             email: req.user.email,
             role: req.user.role  // ← IMPORTANTE!
           });
         } else {
-          console.log('⚠️ User non trovato nel DB');
+          console.log('User non trovato nel DB');
           req.user = null;
         }
 
       } catch (error) {
-        console.log('⚠️ Token non valido:', error.message);
+        console.log('Token non valido:', error.message);
         req.user = null;
       }
 
     } else {
-      console.log('ℹ️ Nessun token Authorization');
+      console.log('Nessun token Authorization');
       req.user = null;
     }
 
-    console.log('🏁 optionalAuth - req.user.role finale:', req.user?.role);
+    console.log('ptionalAuth - req.user.role finale:', req.user?.role);
     next();
 
   } catch (error) {
-    console.error('❌ Errore in optionalAuth:', error);
+    console.error('Errore in optionalAuth:', error);
     req.user = null;
     next();
   }

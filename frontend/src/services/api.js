@@ -1,4 +1,4 @@
-const API_URL = 'https://knowit-scrf.onrender.com/api' ||  'http://localhost:5001/api';
+const API_URL = 'https://knowit-scrf.onrender.com/api' || 'http://localhost:5001/api';
 
 // Helper per gestire token
 const getAuthHeaders = () => {
@@ -9,9 +9,9 @@ const getAuthHeaders = () => {
   };
 };
 
-// ============================================
+
 // AUTH API
-// ============================================
+
 
 export const registerUser = async (username, email, password) => {
   const response = await fetch(`${API_URL}/auth/register`, {
@@ -55,9 +55,9 @@ export const getCurrentUser = async () => {
   return response.json();
 };
 
-// ============================================
+
 // QUIZ API
-// ============================================
+
 
 export const getAllQuizzes = async (filters = {}) => {
   const queryParams = new URLSearchParams();
@@ -68,8 +68,8 @@ export const getAllQuizzes = async (filters = {}) => {
   const authHeaders = getAuthHeaders();
   
   // DEBUG
-  console.log('🔑 Headers inviati:', authHeaders);
-  console.log('🌐 URL:', `${API_URL}/quizzes?${queryParams}`);
+  console.log('Headers inviati:', authHeaders);
+  console.log('URL:', `${API_URL}/quizzes?${queryParams}`);
   
   const response = await fetch(`${API_URL}/quizzes?${queryParams}`, {
     headers: authHeaders
@@ -150,18 +150,17 @@ export const getMyQuizzes = async () => {
   return response.json();
 };
 
-// ============================================
+
 // TEST CONNECTION
-// ============================================
+
 
 export const testConnection = async () => {
   const response = await fetch('${API_URL}/test');
   return response.json();
 };
 
-// ============================================
+
 // RESULTS Aprocess.envI
-// ============================================
 
 export const saveResult = async (resultData) => {
   const response = await fetch(`${API_URL}/results`, {

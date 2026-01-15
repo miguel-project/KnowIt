@@ -46,6 +46,15 @@ function PlayQuizPage() {
     fetchQuiz();
   }, [id]);
 
+  // Salva risultato quando il quiz finisce
+  useEffect(() => {
+  if (gameState === 'finished' && user && !resultSaved) {
+    console.log('Quiz finito, salvo risultato...');
+    console.log('answers.length nel useEffect:', answers.length);
+    saveGameResult();
+  }
+  }, [gameState, answers, user, resultSaved]);
+
   // Inizia il gioco
   const startGame = () => {
     setGameState('playing');
@@ -58,6 +67,8 @@ function PlayQuizPage() {
   const handleAnswer = (answerIndex) => {
     if (showFeedback) return;
 
+    console.log(`\n handleAnswer chiamato - Domanda ${currentQuestionIndex + 1}`);
+
     const currentQuestion = quiz.questions[currentQuestionIndex];
     const isCorrect = answerIndex === currentQuestion.correctAnswer;
     
@@ -68,13 +79,21 @@ function PlayQuizPage() {
     const answerData = {
       questionId: currentQuestion._id,
       selectedAnswer: answerIndex,
-      correctAnswer: currentQuestion.correctAnswer,
       isCorrect,
-      points,
+      pointsEarned: points,
     };
 
-    setAnswers([...answers, answerData]);
-    setScore(score + points);
+    console.log('Risposta da salvare:', answerData);
+    console.log('answers PRIMA:', answers.length);
+
+    setAnswers(prevAnswers => {
+    const newAnswers = [...prevAnswers, answerData];
+    console.log(`Risposta ${newAnswers.length} salvata:`, answerData);
+    return newAnswers;
+    });
+
+
+    setScore(prevScore => prevScore + points);
     setSelectedAnswer(answerIndex);
     setShowFeedback(true);
 
@@ -91,9 +110,7 @@ function PlayQuizPage() {
     if (nextIndex >= quiz.questions.length) {
       // Fine quiz
       setGameState('finished');
-      if (user) {
-        saveGameResult();
-      }
+      
     } else {
       // Prossima domanda
       setCurrentQuestionIndex(nextIndex);
@@ -124,10 +141,16 @@ function PlayQuizPage() {
   };
 
   // Salva risultato nel database
-const saveGameResult = async () => {
-  try {
+  const saveGameResult = async () => {
+   if (!user) return;
+
+    try {
+    console.log('Salvataggio risultato...');
+    console.log('Risposte totali:', answers.length);
+    console.log('Dettaglio risposte:', answers);
+
     const stats = getFinalStats();
-    
+
     const resultData = {
       quizId: quiz._id,
       score: score,
@@ -138,14 +161,16 @@ const saveGameResult = async () => {
       answers: answers
     };
 
+    console.log('Dati da inviare:', resultData);
+
     await saveResult(resultData);
     setResultSaved(true);
-    console.log('✅ Risultato salvato con successo');
-  } catch (error) {
-    console.error('❌ Errore nel salvare il risultato:', error);
-    // Non bloccare l'utente se il salvataggio fallisce
-  }
-};
+    console.log('Risultato salvato con successo');
+    } catch (error) {
+    console.error('Errore nel salvare il risultato:', error);
+    setResultSaved(true); // Imposta comunque per non bloccare UI
+    }
+  };
 
   if (loading) {
     return <div className="loading">Caricamento quiz...</div>;

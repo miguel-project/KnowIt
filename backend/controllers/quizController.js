@@ -1,9 +1,9 @@
 const Quiz = require('../models/Quiz');
 const Question = require('../models/Question');
 
-// @desc    Ottieni tutti i quiz
-// @route   GET /api/quizzes
-// @access  Public
+// Ottieni tutti i quiz
+// GET /api/quizzes
+// Public
 exports.getAllQuizzes = async (req, res) => {
   try {
     const { category, difficulty, search } = req.query;
@@ -15,7 +15,7 @@ exports.getAllQuizzes = async (req, res) => {
     // USER vede quiz pubblici + i suoi privati
     // GUEST vede solo quiz pubblici
     if (req.user) {
-      console.log('🔍 getAllQuizzes - req.user:', {
+      console.log('getAllQuizzes - req.user:', {
       _id: req.user._id,
       username: req.user.username,
       email: req.user.email,
@@ -26,19 +26,19 @@ exports.getAllQuizzes = async (req, res) => {
       if (req.user.role === 'admin') {
         // Admin: nessun filtro su isPublic (vede tutto)
         filter = {};
-        console.log('👑 Admin loggato - Mostra TUTTI i quiz');
+        console.log('Admin loggato - Mostra TUTTI i quiz');
       } else {
         // User normale: pubblici + i suoi privati
         filter.$or = [
           { isPublic: true },
           { createdBy: req.user._id }
         ];
-        console.log('👤 User loggato - Mostra pubblici + i suoi privati');
+        console.log('User loggato - Mostra pubblici + i suoi privati');
       }
     } else {
       // Guest: solo pubblici
       filter.isPublic = true;
-      console.log('👻 Guest - Solo quiz pubblici');
+      console.log('Guest - Solo quiz pubblici');
     }
 
     // Aggiungi altri filtri
@@ -88,9 +88,9 @@ exports.getAllQuizzes = async (req, res) => {
   }
 };
 
-// @desc    Ottieni un quiz specifico
-// @route   GET /api/quizzes/:id
-// @access  Public
+// Ottieni un quiz specifico
+// GET /api/quizzes/:id
+// Public
 exports.getQuizById = async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id)
@@ -119,9 +119,9 @@ exports.getQuizById = async (req, res) => {
   }
 };
 
-// @desc    Crea un nuovo quiz
-// @route   POST /api/quizzes
-// @access  Private (Admin)
+// Crea un nuovo quiz
+// POST /api/quizzes
+// Private (Admin)
 exports.createQuiz = async (req, res) => {
   try {
     const { title, description, category, difficulty, isPublic } = req.body;
@@ -160,9 +160,9 @@ exports.createQuiz = async (req, res) => {
   }
 };
 
-// @desc    Aggiungi domanda a un quiz
-// @route   POST /api/quizzes/:id/questions
-// @access  Private (Admin)
+// Aggiungi domanda a un quiz
+// POST /api/quizzes/:id/questions
+// Private (Admin)
 exports.addQuestion = async (req, res) => {
   try {
     const { questionText, options, correctAnswer, points, timeLimit, explanation } = req.body;
@@ -217,9 +217,9 @@ exports.addQuestion = async (req, res) => {
   }
 };
 
-// @desc    Elimina un quiz
-// @route   DELETE /api/quizzes/:id
-// @access  Private (Admin)
+// Elimina un quiz
+// DELETE /api/quizzes/:id
+// Private (Admin)
 exports.deleteQuiz = async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id);
@@ -260,9 +260,9 @@ exports.deleteQuiz = async (req, res) => {
   }
 };
 
-// @desc    Ottieni le mie creazioni (quiz creati dall'utente)
-// @route   GET /api/quizzes/my-quizzes
-// @access  Private
+// Ottieni le mie creazioni (quiz creati dall'utente)
+// GET /api/quizzes/my-quizzes
+// Private
 exports.getMyQuizzes = async (req, res) => {
   try {
     const quizzes = await Quiz.find({ createdBy: req.user._id })
@@ -285,9 +285,7 @@ exports.getMyQuizzes = async (req, res) => {
   }
 };
 
-// ==========================================
 // ROUTE ADMIN
-// ==========================================
 
 // Admin elimina qualsiasi quiz
 exports.adminDeleteQuiz = async (req, res) => {

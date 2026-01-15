@@ -1,9 +1,9 @@
 const Result = require('../models/Result');
 const Quiz = require('../models/Quiz');
 
-// @desc    Salva risultato quiz
-// @route   POST /api/results
-// @access  Private
+// Salva risultato quiz
+// POST /api/results
+// Private
 exports.saveResult = async (req, res) => {
   try {
     const {
@@ -60,9 +60,9 @@ exports.saveResult = async (req, res) => {
   }
 };
 
-// @desc    Ottieni risultati di un quiz (leaderboard)
-// @route   GET /api/results/quiz/:quizId
-// @access  Public
+// Ottieni risultati di un quiz (leaderboard)
+// GET /api/results/quiz/:quizId
+// Public
 exports.getQuizResults = async (req, res) => {
   try {
     const { quizId } = req.params;
@@ -90,9 +90,9 @@ exports.getQuizResults = async (req, res) => {
   }
 };
 
-// @desc    Ottieni risultati di un utente
-// @route   GET /api/results/user/:userId
-// @access  Private
+// Ottieni risultati di un utente
+// GET /api/results/user/:userId
+// Private
 exports.getUserResults = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -138,19 +138,33 @@ exports.getUserResults = async (req, res) => {
   }
 };
 
-// @desc    Ottieni statistiche globali
-// @route   GET /api/results/stats/global
-// @access  Public
+// Ottieni statistiche globali
+// GET /api/results/stats/global
+// Public
 exports.getGlobalStats = async (req, res) => {
   try {
-    const totalGames = await Result.countDocuments();
-    const totalPlayers = await Result.distinct('user').then(users => users.length);
+    // Ottieni solo quiz pubblici
+    const publicQuizzes = await Quiz.find({ isPublic: true }).select('_id');
+    const publicQuizIds = publicQuizzes.map(q => q._id);
+
+    // Conta solo risultati di quiz pubblici
+    const totalGames = await Result.countDocuments({
+      quiz: { $in: publicQuizIds }
+    });
+
+    // Conta giocatori unici che hanno giocato quiz pubblici
+    const totalPlayers = await Result.distinct('user', {
+      quiz: { $in: publicQuizIds }
+    }).then(users => users.length);
     
-    const topScores = await Result.find()
+    // Top 10 punteggi - SOLO quiz pubblici
+    const topScores = await Result.find({
+      quiz: { $in: publicQuizIds }
+    })
       .sort({ score: -1 })
       .limit(10)
       .populate('user', 'username')
-      .populate('quiz', 'title');
+      .populate('quiz', 'title category isPublic');
 
     res.json({
       success: true,
@@ -171,9 +185,9 @@ exports.getGlobalStats = async (req, res) => {
   }
 };
 
-// @desc    Elimina risultato
-// @route   DELETE /api/results/:id
-// @access  Private (solo proprietario o admin)
+// Elimina risultato
+// DELETE /api/results/:id
+// Private (solo proprietario o admin)
 exports.deleteResult = async (req, res) => {
   try {
     const result = await Result.findById(req.params.id);

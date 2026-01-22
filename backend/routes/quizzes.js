@@ -8,7 +8,6 @@ const {
   deleteQuiz,
   getMyQuizzes,
   adminGetAllQuizzes,
-  adminGetStats,
   adminDeleteQuiz
 } = require('../controllers/quizController');
 const { protect, optionalAuth, adminOnly } = require('../middleware/auth');
@@ -28,7 +27,6 @@ router.delete('/:id', protect, deleteQuiz);
 
 // ROUTE ADMIN
 router.get('/admin/all', protect, adminOnly, adminGetAllQuizzes);
-router.get('/admin/stats', protect, adminOnly, adminGetStats);
 router.delete('/admin/:id', protect, adminOnly, adminDeleteQuiz);
 
 module.exports = router;

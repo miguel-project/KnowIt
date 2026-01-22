@@ -22,7 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Prima di app.use('/api/auth', ...)
+
 const authRoutes = require('./routes/auth');
 console.log('authRoutes:', typeof authRoutes);  // Deve dire "function"
 

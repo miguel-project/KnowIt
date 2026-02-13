@@ -4,7 +4,7 @@ import { getCurrentUser, registerUser, loginUser } from '../services/api';
 // Crea il Context
 const AuthContext = createContext();
 
-// Hook personalizzato per usare il context
+// Hook personalizzato per usare il context nelle pagine
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -13,13 +13,13 @@ export const useAuth = () => {
   return context;
 };
 
-// Provider del Context
+// Provider del Context (quello che fornisce i dati ai componenti figli)
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Controlla se c'è un token salvato al caricamento
+  // Controlla se c'è un token salvato al caricamento ESEGUITO SOLO UNA VOLTA AL CARICAMENTO DELLA PAGINA!
   useEffect(() => {
     checkAuth();
   }, []);
@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Logout
+  // Logout (SI FA SOLO LATO CLIENT)
   const logout = () => {
     localStorage.removeItem('token');
     setUser(null);

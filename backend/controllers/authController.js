@@ -3,9 +3,9 @@ const jwt = require('jsonwebtoken');
 
 // Funzione per generare JWT token
 const generateToken = (userId) => {
-  return jwt.sign(
-    { id: userId },
-    process.env.JWT_SECRET,
+  return jwt.sign(  //funzione per creare il token
+    { id: userId }, //payload del token
+    process.env.JWT_SECRET,    //chiave per firmare il token
     { expiresIn: '7d' }  // Token valido per 7 giorni
   );
 };
@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
 
     // Controlla se utente già esiste
     const userExists = await User.findOne({ 
-      $or: [{ email }, { username }] 
+      $or: [{ email }, { username }] //operando OR tra email e username
     });
 
     if (userExists) {
@@ -37,7 +37,7 @@ exports.register = async (req, res) => {
       });
     }
 
-    // Crea nuovo utente (la password viene hash-ata automaticamente dal model)
+    // Crea nuovo utente (la password viene hash-ata automaticamente nel model User tramite il middleware pre('save') )
     const user = await User.create({
       username,
       email,
@@ -135,7 +135,7 @@ exports.login = async (req, res) => {
 exports.getMe = async (req, res) => {
   try {
     // req.user è stato aggiunto dal middleware di autenticazione
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-password');   //esclude il campo password dalla risposta
 
     res.json({
       success: true,

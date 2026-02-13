@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 // Middleware per proteggere le route
-exports.protect = async (req, res, next) => {
+exports.protect = async (req, res, next) => {   //protect serve per verificare l'autenticazione prima di accedere ad una route
   try {
     let token;
 
@@ -22,7 +22,7 @@ exports.protect = async (req, res, next) => {
 
     try {
       // Verifica il token
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);   //verifica che il token non sia scaduto e in base alla jwt, ritorna il payload contenente user id
 
       // Trova l'utente e salvalo in req.user
       req.user = await User.findById(decoded.id).select('-password');
@@ -53,6 +53,8 @@ exports.protect = async (req, res, next) => {
   }
 };
 
+
+// a differenza di protect, non blocca la route se non c'è autenticazione ma prova a caricare ugualmente l'utente  (esempio: detailpagequiz)
 exports.optionalAuth = async (req, res, next) => {
   try {
     let token;
@@ -75,7 +77,7 @@ exports.optionalAuth = async (req, res, next) => {
             _id: req.user._id,
             username: req.user.username,
             email: req.user.email,
-            role: req.user.role  // ← IMPORTANTE!
+            role: req.user.role  // ← IMPORTANTE! utilizzato per debuggare la gestione degli utenti con ruolo admin
           });
         } else {
           console.log('User non trovato nel DB');
@@ -92,7 +94,7 @@ exports.optionalAuth = async (req, res, next) => {
       req.user = null;
     }
 
-    console.log('ptionalAuth - req.user.role finale:', req.user?.role);
+    console.log('OptionalAuth - req.user.role finale:', req.user?.role);
     next();
 
   } catch (error) {

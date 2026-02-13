@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAllQuizzes, getGlobalStats } from '../services/api';
-import './HomePage.css';
+import '../styles/HomePage.css';
+import QuizCard from '../components/QuizCard';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -45,15 +46,10 @@ function HomePage() {
     }
   };
 
-  const getDifficultyColor = (difficulty) => {
-    switch(difficulty) {
-      case 'facile': return '#4CAF50';
-      case 'medio': return '#FF9800';
-      case 'difficile': return '#F44336';
-      default: return '#999';
-    }
+  const handlePlay = (id) => {
+    navigate(`/play/${id}`);
   };
-
+  
   return (
     <div className="home-container">
       {/* Hero Section */}
@@ -149,37 +145,11 @@ function HomePage() {
           <h2>🔥 Quiz in Evidenza</h2>
           <div className="featured-grid">
             {featuredQuizzes.map(quiz => (
-              <div key={quiz._id} className="featured-quiz-card">
-                <div className="featured-quiz-header">
-                  <span className="featured-badge">{quiz.category}</span>
-                  <span 
-                    className="featured-difficulty"
-                    style={{ backgroundColor: getDifficultyColor(quiz.difficulty) }}
-                  >
-                    {quiz.difficulty}
-                  </span>
-                </div>
-
-                <h3 className="featured-title">{quiz.title}</h3>
-                <p className="featured-description">
-                  {quiz.description.length > 80 
-                    ? quiz.description.substring(0, 80) + '...' 
-                    : quiz.description
-                  }
-                </p>
-
-                <div className="featured-meta">
-                  <span>❓ {quiz.questions?.length || 0} domande</span>
-                  <span>👤 {quiz.createdBy?.username}</span>
-                </div>
-
-                <button 
-                  className="featured-play-btn"
-                  onClick={() => navigate(`/play/${quiz._id}`)}
-                >
-                  🎮 Gioca
-                </button>
-              </div>
+              <QuizCard 
+                key={quiz._id} 
+                quiz={quiz} 
+                onPlay={handlePlay} // Passiamo la callback 'cb'
+              />
             ))}
           </div>
 

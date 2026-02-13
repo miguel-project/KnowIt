@@ -1,4 +1,4 @@
-const API_URL = 'https://knowit-scrf.onrender.com/api' ||  'http://localhost:5001/api';
+const API_URL = /*'https://knowit-scrf.onrender.com/api' ||  */ 'http://localhost:5001/api';
 
 // Helper per gestire token
 const getAuthHeaders = () => {
@@ -14,10 +14,10 @@ const getAuthHeaders = () => {
 
 
 export const registerUser = async (username, email, password) => {
-  const response = await fetch(`${API_URL}/auth/register`, {
+  const response = await fetch(`${API_URL}/auth/register`, {  //richiesta HTTP
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, email, password })
+    headers: { 'Content-Type': 'application/json' },    //si inviano dati JSON  
+    body: JSON.stringify({ username, email, password }) //conversione da oggetto JS a stringa JSON
   });
   
   if (!response.ok) {

@@ -47,6 +47,7 @@ function PlayQuizPage() {
     if (gameState === 'finished' && user && !resultSaved) {
       saveGameResult();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState, user, resultSaved]);
 
   const startGame = () => {

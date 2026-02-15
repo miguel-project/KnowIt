@@ -16,6 +16,7 @@ function LeaderboardPage() {
 
   useEffect(() => {
     loadLeaderboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [quizId]);
 
   const loadLeaderboard = async () => {

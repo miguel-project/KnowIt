@@ -1,4 +1,4 @@
-const API_URL = /*'https://knowit-scrf.onrender.com/api' ||  */ 'http://localhost:5001/api';
+const API_URL = 'https://knowit-scrf.onrender.com/api' ||  'http://localhost:5001/api';
 
 // Helper per gestire token
 const getAuthHeaders = () => {
